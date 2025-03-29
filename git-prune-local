@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# Check if the current branch is 'master' or 'main'
+current_branch=$(git symbolic-ref --short HEAD)
+if [[ "$current_branch" != "main" && "$current_branch" != "master" ]]; then
+  echo "Error: You must be on the 'main' or 'master' branch to run this script."
+  echo "Switch branches and try again."
+  exit 1
+fi
+
+pruned_remote_branches=$(git remote prune origin | grep pruned | sed 's/* \[pruned] origin\///')
+local_branches=$(git branch | grep -v master | grep -v main)
+
+echo "Cleaning up local branches..."
+echo
+
+for remote_branch in $pruned_remote_branches; do
+  # Check if the remote branch exists locally
+  if echo "$local_branches" | grep -qw "$remote_branch"; then
+    # Confirm deletion
+    read -p "Do you want to delete the local branch '$remote_branch'? (y/n): " confirm
+    if [[ "$confirm" =~ ^[Yy]$ ]]; then
+      # If the use confirms, delete the local branch
+      echo "Deleting local branch: $remote_branch"
+      git branch -D "$remote_branch"
+    else
+      echo "Skipping deletion of branch: $remote_branch"
+    fi
+
+    echo
+  fi
+done
+
+echo "Done!"

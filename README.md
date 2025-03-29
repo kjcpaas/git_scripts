@@ -17,4 +17,4 @@ export PATH="$PATH:path/to/git_scripts"
 
 This command prunes local branches if they have already been deleted from remote.
 
-![git prune-local](docs/git-prune-local-demo)
+![git prune-local](docs/prune-local.png)

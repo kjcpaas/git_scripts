@@ -8,23 +8,26 @@ if [[ "$current_branch" != "main" && "$current_branch" != "master" ]]; then
   exit 1
 fi
 
-pruned_remote_branches=$(git remote prune origin | grep pruned | sed 's/* \[pruned] origin\///')
+echo "Pruning remote branches..."
+git remote prune origin > /dev/null
+
+remote_branches=$(git branch -r | grep -v master | grep -v main | sed "s/origin\///")
 local_branches=$(git branch | grep -v master | grep -v main)
 
 echo "Cleaning up local branches..."
 echo
 
-for remote_branch in $pruned_remote_branches; do
+for local_branch in $local_branches; do
   # Check if the remote branch exists locally
-  if echo "$local_branches" | grep -qw "$remote_branch"; then
+  if ! echo "$remote_branches" | grep -qw "$local_branch"; then
     # Confirm deletion
-    read -p "Do you want to delete the local branch '$remote_branch'? (y/n): " confirm
+    read -p "Do you want to delete the local branch '$local_branch'? (y/n): " confirm
     if [[ "$confirm" =~ ^[Yy]$ ]]; then
       # If the use confirms, delete the local branch
-      echo "Deleting local branch: $remote_branch"
-      git branch -D "$remote_branch"
+      echo "Deleting local branch: $local_branch"
+      git branch -D "$local_branch"
     else
-      echo "Skipping deletion of branch: $remote_branch"
+      echo "Skipping deletion of branch: $local_branch"
     fi
 
     echo

@@ -8,7 +8,7 @@ if [[ "$current_branch" != "main" && "$current_branch" != "master" ]]; then
   exit 1
 fi
 
-echo "Pruning remote branches..."
+echo "Fetching remote branches..."
 
 remote_merged_branches=$(git remote prune origin --dry-run | grep "\[would prune]" | sed "s/* \[would prune] origin\///")
 remote_branches=$(git branch -r | grep -v master | grep -v main | sed "s/origin\///")
